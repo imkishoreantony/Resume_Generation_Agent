@@ -1,7 +1,15 @@
 asgiref==3.11.1
+certifi==2026.6.17
+distlib==0.4.3
 Django==6.0.6
 djangorestframework==3.17.1
-djangorestframework_simplejwt==5.5.1
-PyJWT==2.13.0
+filelock==3.29.4
+packaging==26.2
+pipenv==2026.6.2
+platformdirs==4.10.0
+pymupdf==1.28.0
+python-discovery==1.4.2
+setuptools==82.0.1
 sqlparse==0.5.5
 tzdata==2026.2
+virtualenv==21.5.1
