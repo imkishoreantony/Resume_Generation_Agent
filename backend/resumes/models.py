@@ -20,6 +20,12 @@ class Resume(models.Model):
     experience = models.TextField()
 
     template = models.CharField(max_length=100, default="Classic")
+    resume_file = models.FileField(
+        upload_to="resumes/",
+        blank=True,
+        null=True
+    )
+    
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
