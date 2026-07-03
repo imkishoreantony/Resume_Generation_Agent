@@ -4,7 +4,7 @@ from .serializers import RegisterSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import LoginSerializer
-
+from rest_framework.permissions import IsAuthenticated
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
@@ -24,3 +24,14 @@ class LoginView(generics.GenericAPIView):
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class ProfileView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        return Response({
+            "username": user.username,
+            "email": user.email,
+        })
