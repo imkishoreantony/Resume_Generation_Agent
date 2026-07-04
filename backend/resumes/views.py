@@ -4,7 +4,9 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from .utils import extract_text_from_pdf
 from .models import Resume
 from .serializers import ResumeSerializer
-
+from .gemini_service import improve_resume
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 class ResumeCreateView(generics.ListCreateAPIView):
     serializer_class = ResumeSerializer
@@ -68,3 +70,36 @@ class ResumeTextView(APIView):
             return Response({
                 "error": "Resume not found."
             }, status=404)
+class ResumeImproveView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            resume = Resume.objects.get(
+                id=pk,
+                user=request.user
+            )
+
+            if not resume.resume_file:
+                return Response(
+                    {"error": "No resume file uploaded."},
+                    status=400
+                )
+
+            text = extract_text_from_pdf(
+                resume.resume_file.path
+            )
+
+            ai_response = improve_resume(text)
+
+            return Response({
+                "resume_id": resume.id,
+                "title": resume.title,
+                "ai_suggestions": ai_response
+            })
+
+        except Resume.DoesNotExist:
+            return Response(
+                {"error": "Resume not found."},
+                status=404
+            )
