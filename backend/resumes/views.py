@@ -7,7 +7,10 @@ from .serializers import ResumeSerializer
 from .gemini_service import improve_resume , generate_resume
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from .pdf_generator import generate_resume_pdf
+from django.http import FileResponse
+from django.conf import settings
+import os
 class ResumeCreateView(generics.ListCreateAPIView):
     serializer_class = ResumeSerializer
     permission_classes = [IsAuthenticated]
@@ -130,6 +133,54 @@ class ResumeGenerateView(APIView):
                 "title": resume.title,
                 "generated_resume": generated_resume
             })
+
+        except Resume.DoesNotExist:
+            return Response(
+                {"error": "Resume not found."},
+                status=404
+            )
+class ResumeDownloadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            resume = Resume.objects.get(
+                id=pk,
+                user=request.user
+            )
+
+            if not resume.resume_file:
+                return Response(
+                    {"error": "No resume file uploaded."},
+                    status=400
+                )
+
+            # Extract text
+            text = extract_text_from_pdf(
+                resume.resume_file.path
+            )
+
+            # Generate AI resume
+            generated_resume = generate_resume(text)
+
+            # Output PDF path
+            output_path = os.path.join(
+                settings.MEDIA_ROOT,
+                f"AI_Resume_{resume.id}.pdf"
+            )
+
+            # Create PDF
+            generate_resume_pdf(
+                generated_resume,
+                output_path
+            )
+
+            # Return downloadable PDF
+            return FileResponse(
+                open(output_path, "rb"),
+                as_attachment=True,
+                filename=f"AI_Resume_{resume.id}.pdf"
+            )
 
         except Resume.DoesNotExist:
             return Response(
