@@ -54,3 +54,48 @@ Resume:
         text = text.replace("```json", "").replace("```", "").strip()
 
     return json.loads(text)
+def generate_resume(resume_text):
+    prompt = f"""
+You are an expert professional resume writer.
+
+Rewrite the following resume into a modern ATS-friendly resume.
+
+Return ONLY valid JSON.
+
+Do NOT use markdown.
+
+Do NOT use ```.
+
+Return exactly this format:
+
+{{
+    "professional_summary": "",
+
+    "technical_skills": [
+        ""
+    ],
+
+    "professional_experience": "",
+
+    "projects": "",
+
+    "education": "",
+
+    "certifications": "",
+
+    "achievements": ""
+}}
+
+Resume:
+
+{resume_text}
+"""
+
+    response = model.generate_content(prompt)
+
+    text = response.text.strip()
+
+    if text.startswith("```json"):
+        text = text.replace("```json", "").replace("```", "").strip()
+
+    return json.loads(text)
