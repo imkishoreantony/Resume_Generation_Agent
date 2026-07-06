@@ -4,13 +4,17 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from .utils import extract_text_from_pdf
 from .models import Resume
 from .serializers import ResumeSerializer
-from .gemini_service import improve_resume , generate_resume
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .pdf_generator import generate_resume_pdf
 from django.http import FileResponse
 from django.conf import settings
 import os
+from .gemini_service import (
+    improve_resume,
+    generate_resume,
+    assist_resume,
+)
 class ResumeCreateView(generics.ListCreateAPIView):
     serializer_class = ResumeSerializer
     permission_classes = [IsAuthenticated]
@@ -103,6 +107,64 @@ class ResumeImproveView(APIView):
                 "resume_id": resume.id,
                 "title": resume.title,
                 "ai_suggestions": ai_response
+            })
+
+        except Resume.DoesNotExist:
+            return Response(
+                {"error": "Resume not found."},
+                status=404
+            )
+class ResumeAssistView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            resume = Resume.objects.get(
+                id=pk,
+                user=request.user
+            )
+
+            # If a PDF exists, improve the uploaded resume
+            if resume.resume_file:
+
+                text = extract_text_from_pdf(
+                    resume.resume_file.path
+                )
+
+            else:
+                # Improve the manually created resume
+                text = f"""
+Title:
+{resume.title}
+
+Name:
+{resume.full_name}
+
+Email:
+{resume.email}
+
+Phone:
+{resume.phone}
+
+Summary:
+{resume.summary}
+
+Skills:
+{resume.skills}
+
+Education:
+{resume.education}
+
+Experience:
+{resume.experience}
+"""
+
+            ai_response = assist_resume(text)
+
+            return Response({
+                "resume_id": resume.id,
+                "title": resume.title,
+                "improved_resume": ai_response
             })
 
         except Resume.DoesNotExist:

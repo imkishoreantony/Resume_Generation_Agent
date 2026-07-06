@@ -71,6 +71,12 @@ function ResumeCard({ resume }) {
           onClick={downloadPDF}
           className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
         >
+          <button
+  onClick={() => navigate(`/assist/${resume.id}`)}
+  className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition"
+>
+  AI Assist
+</button>
           PDF
         </button>
 

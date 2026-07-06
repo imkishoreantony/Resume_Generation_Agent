@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import UploadResume from "./pages/UploadResume";
 import Profile from "./pages/Profile";
 import ReviewResume from "./pages/ReviewResume";
+import AssistResume from "./pages/AssistResume";
 
 function App() {
   return (
@@ -57,22 +58,30 @@ function App() {
           }
         />
 
-      <Route
-  path="/generate/:id"
-  element={
-    <ProtectedRoute>
-      <GenerateResume />
-    </ProtectedRoute>
-  }
-/>
+        <Route
+    path="/generate/:id"
+    element={
+      <ProtectedRoute>
+        <GenerateResume />
+      </ProtectedRoute>
+    }
+  />
+    <Route
+    path="/create"
+    element={
+      <ProtectedRoute>
+        <CreateResume />
+      </ProtectedRoute>
+    }
+  />
   <Route
-  path="/create"
-  element={
-    <ProtectedRoute>
-      <CreateResume />
-    </ProtectedRoute>
-  }
-/>
+    path="/assist/:id"
+    element={
+      <ProtectedRoute>
+        <AssistResume />
+      </ProtectedRoute>
+    }
+  />
       </Routes>
     </BrowserRouter>
   );
