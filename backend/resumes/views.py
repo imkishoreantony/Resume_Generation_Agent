@@ -1,6 +1,6 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from .utils import extract_text_from_pdf
 from .models import Resume
 from .serializers import ResumeSerializer
@@ -15,7 +15,11 @@ class ResumeCreateView(generics.ListCreateAPIView):
     serializer_class = ResumeSerializer
     permission_classes = [IsAuthenticated]
 
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [
+    JSONParser,
+    MultiPartParser,
+    FormParser,
+]
 
     def get_queryset(self):
         return Resume.objects.filter(user=self.request.user)

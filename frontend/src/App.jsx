@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import CreateResume from "./pages/CreateResume";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GenerateResume from "./pages/GenerateResume";
 import Home from "./pages/Home";
@@ -62,6 +62,14 @@ function App() {
   element={
     <ProtectedRoute>
       <GenerateResume />
+    </ProtectedRoute>
+  }
+/>
+  <Route
+  path="/create"
+  element={
+    <ProtectedRoute>
+      <CreateResume />
     </ProtectedRoute>
   }
 />

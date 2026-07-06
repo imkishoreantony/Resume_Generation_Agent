@@ -1,35 +1,44 @@
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 function Navbar() {
+  return (
+    <nav className="bg-white shadow-md p-5 mb-8 rounded-xl">
 
-    const navigate = useNavigate();
-    const { logout } = useAuth();
+      <div className="flex justify-between items-center">
 
-    const handleLogout = () => {
-        logout();
-        navigate("/login");
-    };
+        <h1 className="text-2xl font-bold text-blue-600">
+          AI Resume Builder
+        </h1>
 
-    return (
+        <div className="flex gap-6">
 
-        <nav className="bg-blue-600 text-white px-8 py-4 flex justify-between items-center shadow">
+          <Link
+            to="/dashboard"
+            className="hover:text-blue-600"
+          >
+            Dashboard
+          </Link>
 
-            <h1 className="text-2xl font-bold">
-                AI Resume Builder
-            </h1>
+          <Link
+            to="/upload"
+            className="hover:text-blue-600"
+          >
+            Upload
+          </Link>
 
-            <button
-                onClick={handleLogout}
-                className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
-            >
-                Logout
-            </button>
+          <Link
+            to="/profile"
+            className="hover:text-blue-600"
+          >
+            Profile
+          </Link>
 
-        </nav>
+        </div>
 
-    );
+      </div>
 
+    </nav>
+  );
 }
 
 export default Navbar;
