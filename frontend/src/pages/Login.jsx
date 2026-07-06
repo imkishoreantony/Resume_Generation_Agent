@@ -1,24 +1,26 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
       const response = await api.post("token/", {
-        username: username,
-        password: password,
+        username,
+        password,
       });
 
-      localStorage.setItem("access", response.data.access);
-      localStorage.setItem("refresh", response.data.refresh);
+      // Save tokens using AuthContext
+      login(response.data.access, response.data.refresh);
 
       alert("Login Successful!");
 
@@ -32,7 +34,6 @@ function Login() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-md">
-
         <h1 className="text-3xl font-bold text-center text-blue-600">
           AI Resume Builder
         </h1>
@@ -42,7 +43,6 @@ function Login() {
         </p>
 
         <form className="mt-8" onSubmit={handleLogin}>
-
           <div className="mb-5">
             <label className="block mb-2 font-medium">
               Username
@@ -77,19 +77,17 @@ function Login() {
           >
             Login
           </button>
-
         </form>
 
         <p className="text-center mt-6 text-gray-600">
           Don't have an account?{" "}
-          <a
-            href="/register"
+          <Link
+            to="/register"
             className="text-blue-600 font-semibold"
           >
             Register
-          </a>
+          </Link>
         </p>
-
       </div>
     </div>
   );
