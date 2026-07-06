@@ -52,6 +52,21 @@ class Resume(models.Model):
         null=True
     )
 
+    
+    ai_review = models.JSONField(
+    blank=True,
+    null=True
+    )
+
+    ai_resume = models.JSONField(
+        blank=True,
+        null=True
+    )
+
+    ai_assist = models.JSONField(
+        blank=True,
+        null=True
+    )
     created_at = models.DateTimeField(
         auto_now_add=True
     )
@@ -59,6 +74,7 @@ class Resume(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True
     )
+    
 
     def __str__(self):
         return self.title

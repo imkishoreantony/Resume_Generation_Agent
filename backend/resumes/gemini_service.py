@@ -22,6 +22,24 @@ def clean_json(text):
     return text.strip()
 
 
+def ask_gemini(prompt):
+    """
+    Sends prompt to Gemini and safely returns JSON.
+    """
+
+    try:
+        response = model.generate_content(prompt)
+
+        text = clean_json(response.text)
+
+        return json.loads(text)
+
+    except Exception as e:
+        return {
+            "error": str(e)
+        }
+
+
 def improve_resume(resume_text):
     prompt = f"""
 You are an expert ATS Resume Reviewer.
@@ -45,11 +63,7 @@ Resume:
 {resume_text}
 """
 
-    response = model.generate_content(prompt)
-
-    text = clean_json(response.text)
-
-    return json.loads(text)
+    return ask_gemini(prompt)
 
 
 def generate_resume(resume_text):
@@ -118,11 +132,7 @@ Resume:
 {resume_text}
 """
 
-    response = model.generate_content(prompt)
-
-    text = clean_json(response.text)
-
-    return json.loads(text)
+    return ask_gemini(prompt)
 
 
 def assist_resume(resume_text):
@@ -197,8 +207,4 @@ Resume:
 {resume_text}
 """
 
-    response = model.generate_content(prompt)
-
-    text = clean_json(response.text)
-
-    return json.loads(text)
+    return ask_gemini(prompt)
