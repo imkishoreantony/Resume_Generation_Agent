@@ -142,7 +142,8 @@ class ResumeGenerateView(APIView):
 class ResumeDownloadView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, pk):
+    def get(self, request, pk):
+
         try:
             resume = Resume.objects.get(
                 id=pk,
@@ -155,27 +156,23 @@ class ResumeDownloadView(APIView):
                     status=400
                 )
 
-            # Extract text
             text = extract_text_from_pdf(
                 resume.resume_file.path
             )
 
-            # Generate AI resume
             generated_resume = generate_resume(text)
 
-            # Output PDF path
             output_path = os.path.join(
                 settings.MEDIA_ROOT,
                 f"AI_Resume_{resume.id}.pdf"
             )
 
-            # Create PDF
             generate_resume_pdf(
+                resume,
                 generated_resume,
                 output_path
             )
 
-            # Return downloadable PDF
             return FileResponse(
                 open(output_path, "rb"),
                 as_attachment=True,

@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import GenerateResume from "./pages/GenerateResume";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -57,6 +57,14 @@ function App() {
           }
         />
 
+      <Route
+  path="/generate/:id"
+  element={
+    <ProtectedRoute>
+      <GenerateResume />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );

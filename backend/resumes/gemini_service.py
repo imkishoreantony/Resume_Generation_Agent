@@ -66,7 +66,7 @@ Do NOT use markdown.
 
 Do NOT use ```.
 
-Return exactly this format:
+Return exactly this JSON structure:
 
 {{
     "professional_summary": "",
@@ -75,15 +75,36 @@ Return exactly this format:
         ""
     ],
 
-    "professional_experience": "",
+    "professional_experience": [
+        {{
+            "title": "",
+            "company": "",
+            "dates": "",
+            "description": [
+                ""
+            ]
+        }}
+    ],
 
-    "projects": "",
+    "projects": [
+        {{
+            "title": "",
+            "description": ""
+        }}
+    ],
 
-    "education": "",
+    "education": {{
+        "degree": "",
+        "institution": ""
+    }},
 
-    "certifications": "",
+    "certifications": [
+        ""
+    ],
 
-    "achievements": ""
+    "achievements": [
+        ""
+    ]
 }}
 
 Resume:
