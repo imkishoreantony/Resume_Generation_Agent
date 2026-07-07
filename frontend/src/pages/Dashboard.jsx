@@ -74,21 +74,21 @@ function Dashboard() {
 
           <button
             onClick={() => navigate("/create")}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition shadow"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow transition"
           >
             ➕ Create Resume
           </button>
 
           <button
             onClick={() => navigate("/upload")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition shadow"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow transition"
           >
             📤 Upload Resume
           </button>
 
         </div>
 
-        {/* Resume Section */}
+        {/* Resume Header */}
 
         <div className="mb-6">
 
@@ -106,33 +106,35 @@ function Dashboard() {
 
         {loading ? (
 
-          <div className="text-center py-20">
+          <div className="flex flex-col items-center justify-center py-24">
 
-            <h2 className="text-2xl font-semibold text-gray-600">
-              Loading resumes...
-            </h2>
+            <div className="w-14 h-14 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+
+            <p className="mt-6 text-xl text-gray-600 font-medium">
+              Loading your resumes...
+            </p>
 
           </div>
 
         ) : resumes.length === 0 ? (
 
-          <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+          <div className="bg-white rounded-2xl shadow-lg p-14 text-center">
 
-            <div className="text-6xl mb-4">
+            <div className="text-7xl mb-6">
               📄
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-800">
+            <h2 className="text-3xl font-bold text-gray-800">
               No Resumes Yet
             </h2>
 
-            <p className="text-gray-500 mt-3 mb-6">
-              Create your first AI Resume or upload an existing one.
+            <p className="text-gray-500 mt-4 mb-8">
+              Create your first AI Resume or upload an existing resume.
             </p>
 
             <button
               onClick={() => navigate("/create")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl transition"
             >
               Create Resume
             </button>
@@ -141,13 +143,29 @@ function Dashboard() {
 
         ) : (
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div
+            className={
+              resumes.length === 1
+                ? "flex justify-center"
+                : "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+            }
+          >
 
             {resumes.map((resume) => (
-              <ResumeCard
+
+              <div
                 key={resume.id}
-                resume={resume}
-              />
+                className={
+                  resumes.length === 1
+                    ? "w-full max-w-2xl"
+                    : ""
+                }
+              >
+
+                <ResumeCard resume={resume} />
+
+              </div>
+
             ))}
 
           </div>

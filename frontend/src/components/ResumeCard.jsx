@@ -23,10 +23,10 @@ function ResumeCard({ resume }) {
       document.body.appendChild(link);
       link.click();
 
-      link.remove();
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      toast.success("PDF Downloaded Successfully 📄");
+      toast.success("Resume PDF Downloaded 📄");
 
     } catch (error) {
       console.error(error);
@@ -35,74 +35,107 @@ function ResumeCard({ resume }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 p-6">
+    <div className="bg-white rounded-3xl shadow-lg border border-gray-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 p-7">
 
-      {/* Resume Title */}
-      <h2 className="text-2xl font-bold text-blue-600 mb-2">
-        {resume.title}
-      </h2>
+      {/* Header */}
 
-      {/* Summary */}
-      <p className="text-gray-600 leading-relaxed min-h-[60px]">
-        {resume.summary || "No summary available."}
-      </p>
+      <div className="flex justify-between items-start">
 
-      {/* Template */}
-      <div className="mt-5">
-        <span className="inline-block bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-medium">
+        <div>
+
+          <h2 className="text-2xl font-bold text-blue-600">
+            {resume.title}
+          </h2>
+
+          <p className="text-gray-600 mt-2 leading-relaxed">
+            {resume.summary || "No summary available."}
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* Resume Info */}
+
+      <div className="flex flex-wrap gap-3 mt-6">
+
+        <span className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-semibold">
           🏷 {resume.template}
         </span>
+
+        <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-semibold">
+          ✅ Ready
+        </span>
+
       </div>
+
+      {/* Divider */}
 
       <hr className="my-6" />
 
-      <h3 className="text-gray-700 font-semibold mb-4">
+      <h3 className="text-lg font-semibold text-gray-700 mb-4">
         AI Tools
       </h3>
 
-      <div className="grid grid-cols-2 gap-3">
+      {/* Buttons */}
+
+      <div className="grid grid-cols-2 gap-4">
 
         <button
           onClick={() => navigate(`/review/${resume.id}`)}
-          className="bg-green-600 hover:bg-green-700 text-white rounded-xl py-3 transition"
+          className="bg-green-600 hover:bg-green-700 text-white rounded-xl py-3 font-medium transition"
         >
           👁 Review
         </button>
 
         <button
           onClick={() => navigate(`/generate/${resume.id}`)}
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 transition"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 font-medium transition"
         >
           ✨ Generate
         </button>
 
         <button
           onClick={() => navigate(`/assist/${resume.id}`)}
-          className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl py-3 transition"
+          className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl py-3 font-medium transition"
         >
           🤖 AI Assist
         </button>
 
         <button
           onClick={() => navigate(`/cover-letter/${resume.id}`)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-3 transition"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-3 font-medium transition"
         >
           📝 Cover Letter
         </button>
 
         <button
           onClick={() => navigate(`/job-match/${resume.id}`)}
-          className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl py-3 transition"
+          className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl py-3 font-medium transition"
         >
           🎯 Job Match
         </button>
 
         <button
           onClick={downloadPDF}
-          className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl py-3 transition"
+          className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl py-3 font-medium transition"
         >
           📄 Resume PDF
         </button>
+
+      </div>
+
+      {/* Footer */}
+
+      <div className="mt-6 pt-4 border-t flex justify-between items-center">
+
+        <span className="text-sm text-gray-500">
+          Resume ID: #{resume.id}
+        </span>
+
+        <span className="text-sm text-green-600 font-semibold">
+          AI Enabled
+        </span>
 
       </div>
 
