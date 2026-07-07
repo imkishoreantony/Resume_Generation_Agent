@@ -10,7 +10,8 @@ import UploadResume from "./pages/UploadResume";
 import Profile from "./pages/Profile";
 import ReviewResume from "./pages/ReviewResume";
 import AssistResume from "./pages/AssistResume";
-
+import JobMatch from "./pages/JobMatch";
+import CoverLetter from "./pages/CoverLetter";
 function App() {
   return (
     <BrowserRouter>
@@ -82,6 +83,11 @@ function App() {
       </ProtectedRoute>
     }
   />
+  <Route
+    path="/cover-letter/:id"
+    element={<CoverLetter />}
+    />
+    <Route path="/job-match/:id" element={<JobMatch />} />
       </Routes>
     </BrowserRouter>
   );

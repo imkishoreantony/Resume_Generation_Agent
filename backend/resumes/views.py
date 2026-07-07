@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from .cover_letter_pdf import generate_cover_letter_pdf
 from django.http import FileResponse
 from django.conf import settings
 
@@ -18,6 +18,8 @@ from .gemini_service import (
     improve_resume,
     generate_resume,
     assist_resume,
+    generate_cover_letter,
+    analyze_job_match,
 )
 
 
@@ -340,5 +342,185 @@ class ResumeDownloadView(APIView):
         except Resume.DoesNotExist:
             return Response(
                 {"error": "Resume not found."},
+                status=404
+            )
+class ResumeCoverLetterView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+
+        try:
+            resume = Resume.objects.get(
+                id=pk,
+                user=request.user
+            )
+
+            # Return cached cover letter
+            if resume.ai_cover_letter:
+                return Response({
+                    "resume_id": resume.id,
+                    "title": resume.title,
+                    "cover_letter": resume.ai_cover_letter,
+                    "cached": True
+                })
+
+            text = get_resume_text(resume)
+
+            cover_letter = generate_cover_letter(text)
+
+            if "error" in cover_letter:
+                return Response(
+                    {"error": cover_letter["error"]},
+                    status=429
+                )
+
+            # Save to database
+            resume.ai_cover_letter = cover_letter
+            resume.save()
+            if resume.edited_cover_letter:
+                return Response({
+                    "resume_id": resume.id,
+                    "title": resume.title,
+                    "cover_letter": {
+                        "cover_letter": resume.edited_cover_letter
+                    },
+                    "cached": True
+                })
+            return Response({
+                "resume_id": resume.id,
+                "title": resume.title,
+                "cover_letter": cover_letter,
+                "cached": False
+            })
+
+        except Resume.DoesNotExist:
+            return Response(
+                {"error": "Resume not found."},
+                status=404
+            )
+    def put(self, request, pk):
+
+        try:
+            resume = Resume.objects.get(
+                id=pk,
+                user=request.user
+            )
+
+            cover_letter = request.data.get("cover_letter")
+
+            if not cover_letter:
+                return Response(
+                    {"error": "Cover letter is required."},
+                    status=400
+                )
+
+            resume.edited_cover_letter = cover_letter
+            resume.save()
+
+            return Response({
+                "message": "Cover Letter Saved Successfully!"
+            })
+
+        except Resume.DoesNotExist:
+            return Response(
+                {"error": "Resume not found."},
+                status=404
+                )
+class ResumeCoverLetterPDFView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+
+        try:
+            resume = Resume.objects.get(
+                id=pk,
+                user=request.user
+            )
+
+            # Use saved edited version if available
+            if resume.edited_cover_letter:
+                cover_letter = resume.edited_cover_letter
+
+            else:
+
+                text = get_resume_text(resume)
+
+                response = generate_cover_letter(text)
+
+                # If Gemini returned an error
+                if "error" in response:
+                    return Response(
+                        {"error": response["error"]},
+                        status=429
+                    )
+
+                cover_letter = response["cover_letter"]
+
+            output_path = os.path.join(
+                settings.MEDIA_ROOT,
+                f"CoverLetter_{resume.id}.pdf"
+            )
+
+            generate_cover_letter_pdf(
+                resume,
+                cover_letter,
+                output_path
+            )
+
+            return FileResponse(
+                open(output_path, "rb"),
+                as_attachment=True,
+                filename=f"CoverLetter_{resume.id}.pdf"
+            )
+
+        except Resume.DoesNotExist:
+            return Response(
+                {"error": "Resume not found."},
+                status=404
+            )
+        
+class ResumeJobMatchView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+
+        try:
+
+            resume = Resume.objects.get(
+                id=pk,
+                user=request.user
+            )
+
+            job_description = request.data.get(
+                "job_description"
+            )
+
+            if not job_description:
+
+                return Response(
+                    {
+                        "error":
+                        "Job description is required."
+                    },
+                    status=400
+                )
+
+            text = get_resume_text(resume)
+
+            result = analyze_job_match(
+                text,
+                job_description
+            )
+
+            return Response(result)
+
+        except Resume.DoesNotExist:
+
+            return Response(
+                {
+                    "error":
+                    "Resume not found."
+                },
                 status=404
             )

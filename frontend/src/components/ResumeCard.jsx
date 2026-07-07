@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../services/api";
 
 function ResumeCard({ resume }) {
@@ -25,59 +26,82 @@ function ResumeCard({ resume }) {
       link.remove();
       window.URL.revokeObjectURL(url);
 
+      toast.success("PDF Downloaded Successfully 📄");
+
     } catch (error) {
-      console.error("PDF Download Error:", error);
-      alert("Failed to download PDF.");
+      console.error(error);
+      toast.error("Failed to download PDF");
     }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition duration-300">
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 p-6">
 
-      <h2 className="text-2xl font-bold text-blue-600">
+      {/* Resume Title */}
+      <h2 className="text-2xl font-bold text-blue-600 mb-2">
         {resume.title}
       </h2>
 
-      <p className="text-gray-600 mt-3">
-        {resume.summary}
+      {/* Summary */}
+      <p className="text-gray-600 leading-relaxed min-h-[60px]">
+        {resume.summary || "No summary available."}
       </p>
 
+      {/* Template */}
       <div className="mt-5">
-        <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-          {resume.template}
+        <span className="inline-block bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-medium">
+          🏷 {resume.template}
         </span>
       </div>
 
-      <div className="flex gap-3 mt-6">
+      <hr className="my-6" />
 
-        {/* Review Button */}
+      <h3 className="text-gray-700 font-semibold mb-4">
+        AI Tools
+      </h3>
+
+      <div className="grid grid-cols-2 gap-3">
+
         <button
           onClick={() => navigate(`/review/${resume.id}`)}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+          className="bg-green-600 hover:bg-green-700 text-white rounded-xl py-3 transition"
         >
-          Review
+          👁 Review
         </button>
 
-        {/* Generate Button */}
         <button
           onClick={() => navigate(`/generate/${resume.id}`)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 transition"
         >
-          Generate
+          ✨ Generate
         </button>
 
-        {/* PDF Download Button */}
+        <button
+          onClick={() => navigate(`/assist/${resume.id}`)}
+          className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl py-3 transition"
+        >
+          🤖 AI Assist
+        </button>
+
+        <button
+          onClick={() => navigate(`/cover-letter/${resume.id}`)}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-3 transition"
+        >
+          📝 Cover Letter
+        </button>
+
+        <button
+          onClick={() => navigate(`/job-match/${resume.id}`)}
+          className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl py-3 transition"
+        >
+          🎯 Job Match
+        </button>
+
         <button
           onClick={downloadPDF}
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
+          className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl py-3 transition"
         >
-          <button
-  onClick={() => navigate(`/assist/${resume.id}`)}
-  className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition"
->
-  AI Assist
-</button>
-          PDF
+          📄 Resume PDF
         </button>
 
       </div>

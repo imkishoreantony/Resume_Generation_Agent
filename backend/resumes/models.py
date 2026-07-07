@@ -67,6 +67,14 @@ class Resume(models.Model):
         blank=True,
         null=True
     )
+    ai_cover_letter = models.JSONField(
+    blank=True,
+    null=True
+    )
+    edited_cover_letter = models.TextField(
+    blank=True,
+    null=True
+    )
     created_at = models.DateTimeField(
         auto_now_add=True
     )

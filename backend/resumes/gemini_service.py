@@ -208,3 +208,78 @@ Resume:
 """
 
     return ask_gemini(prompt)
+def generate_cover_letter(resume_text):
+    prompt = f"""
+You are an expert HR recruiter.
+
+Write a professional ATS-friendly cover letter.
+
+IMPORTANT:
+
+- Use ONLY the information provided.
+- Never invent companies.
+- Never invent skills.
+- Never invent experience.
+- Never invent projects.
+- Never invent certifications.
+
+Return ONLY valid JSON.
+
+Return exactly this format:
+
+{{
+    "cover_letter": ""
+}}
+
+Resume:
+
+{resume_text}
+"""
+
+    return ask_gemini(prompt)
+def analyze_job_match(resume_text, job_description):
+    prompt = f"""
+You are an expert ATS Resume Analyzer.
+
+Compare the resume with the job description.
+
+Return ONLY valid JSON.
+
+Return this structure:
+
+{{
+    "match_score": 0,
+
+    "strengths": [
+        ""
+    ],
+
+    "missing_skills": [
+        ""
+    ],
+
+    "suggestions": [
+        ""
+    ]
+}}
+
+Resume:
+
+{resume_text}
+
+Job Description:
+
+{job_description}
+"""
+
+    try:
+        response = model.generate_content(prompt)
+
+        text = clean_json(response.text)
+
+        return json.loads(text)
+
+    except Exception as e:
+        return {
+            "error": str(e)
+        }
