@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Profile from "./pages/Profile";
 import CreateResume from "./pages/CreateResume";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GenerateResume from "./pages/GenerateResume";
@@ -7,7 +8,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import UploadResume from "./pages/UploadResume";
-import Profile from "./pages/Profile";
 import ReviewResume from "./pages/ReviewResume";
 import AssistResume from "./pages/AssistResume";
 import JobMatch from "./pages/JobMatch";

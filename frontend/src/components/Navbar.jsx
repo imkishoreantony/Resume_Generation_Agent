@@ -45,12 +45,7 @@ function Navbar() {
             Upload
           </Link>
 
-          <Link
-            to="/profile"
-            className="hover:text-blue-600 font-medium"
-          >
-            Profile
-          </Link>
+         
 
           <button
             onClick={handleLogout}
@@ -58,7 +53,12 @@ function Navbar() {
           >
             Logout
           </button>
-
+                    <button
+            onClick={() => navigate("/profile")}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+          >
+            👤 Profile
+          </button>
         </div>
 
       </div>
