@@ -187,11 +187,11 @@ function Profile() {
             </button>
 
             <button
-            onClick={() => setShowPasswordModal(true)}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl"
-          >
-            🔒 Change Password
-          </button>
+                onClick={() => setShowPasswordModal(true)}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl transition"
+              >
+                🔒 Change Password
+            </button>
 
             <button
               onClick={() => navigate("/dashboard")}
@@ -211,6 +211,10 @@ function Profile() {
         onClose={() => setShowEditModal(false)}
         profile={profile}
         onUpdate={setProfile}
+      />
+      <ChangePasswordModal
+          isOpen={showPasswordModal}
+          onClose={() => setShowPasswordModal(false)}
       />
 
     </div>

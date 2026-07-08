@@ -1,6 +1,48 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import api from "../services/api";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
+/* ---------------- Password Input Component ---------------- */
+
+function PasswordInput({
+  label,
+  value,
+  onChange,
+  show,
+  setShow,
+}) {
+  return (
+    <div className="mb-5">
+
+      <label className="block font-semibold mb-2">
+        {label}
+      </label>
+
+      <div className="relative">
+
+        <input
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={onChange}
+          className="w-full border rounded-xl px-4 py-3 pr-12 outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <button
+          type="button"
+          onClick={() => setShow(!show)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600"
+        >
+          {show ? <FaEyeSlash /> : <FaEye />}
+        </button>
+
+      </div>
+
+    </div>
+  );
+}
+
+/* ---------------- Main Modal ---------------- */
 
 function ChangePasswordModal({ isOpen, onClose }) {
 
@@ -16,7 +58,12 @@ function ChangePasswordModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const changePassword = async () => {
+  const handleSubmit = async () => {
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      toast.error("Please fill all fields");
+      return;
+    }
 
     if (newPassword !== confirmPassword) {
       toast.error("Passwords do not match");
@@ -49,7 +96,8 @@ function ChangePasswordModal({ isOpen, onClose }) {
       console.error(error);
 
       toast.error(
-        error.response?.data?.error || "Failed to change password"
+        error.response?.data?.error ||
+        "Failed to change password"
       );
 
     } finally {
@@ -63,104 +111,56 @@ function ChangePasswordModal({ isOpen, onClose }) {
   return (
 
     <div
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn"
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50"
       onClick={onClose}
     >
 
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-3xl shadow-2xl w-[92%] max-w-lg p-8 animate-scaleIn"
+        className="bg-white rounded-3xl shadow-2xl w-[95%] max-w-lg p-8"
       >
 
-        <h1 className="text-3xl font-bold text-blue-600 mb-8">
+        <h2 className="text-3xl font-bold text-blue-600 mb-8">
           🔒 Change Password
-        </h1>
+        </h2>
 
-        {/* Current Password */}
+        <PasswordInput
+          label="Current Password"
+          value={oldPassword}
+          onChange={(e) => setOldPassword(e.target.value)}
+          show={showOld}
+          setShow={setShowOld}
+        />
 
-        <label className="font-semibold">
-          Current Password
-        </label>
+        <PasswordInput
+          label="New Password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          show={showNew}
+          setShow={setShowNew}
+        />
 
-        <div className="flex mt-2 mb-5">
-
-          <input
-            type={showOld ? "text" : "password"}
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
-            className="flex-1 border rounded-l-xl p-3"
-          />
-
-          <button
-            onClick={() => setShowOld(!showOld)}
-            className="px-4 bg-gray-200 rounded-r-xl"
-          >
-            {showOld ? "🙈" : "👁"}
-          </button>
-
-        </div>
-
-        {/* New Password */}
-
-        <label className="font-semibold">
-          New Password
-        </label>
-
-        <div className="flex mt-2 mb-5">
-
-          <input
-            type={showNew ? "text" : "password"}
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="flex-1 border rounded-l-xl p-3"
-          />
-
-          <button
-            onClick={() => setShowNew(!showNew)}
-            className="px-4 bg-gray-200 rounded-r-xl"
-          >
-            {showNew ? "🙈" : "👁"}
-          </button>
-
-        </div>
-
-        {/* Confirm Password */}
-
-        <label className="font-semibold">
-          Confirm Password
-        </label>
-
-        <div className="flex mt-2">
-
-          <input
-            type={showConfirm ? "text" : "password"}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="flex-1 border rounded-l-xl p-3"
-          />
-
-          <button
-            onClick={() => setShowConfirm(!showConfirm)}
-            className="px-4 bg-gray-200 rounded-r-xl"
-          >
-            {showConfirm ? "🙈" : "👁"}
-          </button>
-
-        </div>
+        <PasswordInput
+          label="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          show={showConfirm}
+          setShow={setShowConfirm}
+        />
 
         <div className="flex justify-end gap-4 mt-8">
 
           <button
             onClick={onClose}
-            className="bg-gray-300 hover:bg-gray-400 px-6 py-3 rounded-xl"
+            className="px-6 py-3 rounded-xl bg-gray-300 hover:bg-gray-400 transition"
           >
             Cancel
           </button>
 
           <button
-            onClick={changePassword}
+            onClick={handleSubmit}
             disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl"
+            className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition disabled:opacity-50"
           >
             {loading ? "Updating..." : "🔒 Update Password"}
           </button>

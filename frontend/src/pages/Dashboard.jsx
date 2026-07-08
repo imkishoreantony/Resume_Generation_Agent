@@ -29,6 +29,13 @@ function Dashboard() {
     }
   };
 
+  // Delete Resume from UI
+  const handleDelete = (id) => {
+    setResumes((prevResumes) =>
+      prevResumes.filter((resume) => resume.id !== id)
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
 
@@ -162,7 +169,10 @@ function Dashboard() {
                 }
               >
 
-                <ResumeCard resume={resume} />
+                <ResumeCard
+                  resume={resume}
+                  onDelete={handleDelete}
+                />
 
               </div>
 

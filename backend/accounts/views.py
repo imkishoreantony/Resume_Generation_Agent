@@ -38,18 +38,23 @@ class ProfileView(generics.GenericAPIView):
 
     def get(self, request):
         user = request.user
+        profile, created = UserProfile.objects.get_or_create(
+        user=user
+    )
 
         resumes = Resume.objects.filter(user=user)
 
         return Response ({
+            
             "username": user.username,
             "email": user.email,
             "date_joined": user.date_joined.strftime("%d %B %Y"),
-            "profile_picture": (
-                request.build_absolute_uri(user.userprofile.profile_picture.url)
-                if user.userprofile.profile_picture
-                else None
-            ),
+            
+                "profile_picture": (
+                    request.build_absolute_uri(profile.profile_picture.url)
+                    if profile.profile_picture
+                    else None
+                ),
             "total_resumes": resumes.count(),
             "ai_reviews": resumes.exclude(ai_review=None).count(),
             "ai_generated": resumes.exclude(ai_resume=None).count(),

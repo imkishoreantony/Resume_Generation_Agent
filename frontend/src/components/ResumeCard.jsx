@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../services/api";
 
-function ResumeCard({ resume }) {
+function ResumeCard({ resume, onDelete }) {
   const navigate = useNavigate();
 
   const downloadPDF = async () => {
@@ -33,7 +34,41 @@ function ResumeCard({ resume }) {
       toast.error("Failed to download PDF");
     }
   };
+  const [deleting, setDeleting] = useState(false);
 
+const deleteResume = async () => {
+
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this resume?\n\nThis action cannot be undone."
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    setDeleting(true);
+
+    await api.delete(`resumes/${resume.id}/`);
+
+    toast.success("Resume deleted successfully! 🗑");
+
+    if (onDelete) {
+      onDelete(resume.id);
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error("Failed to delete resume.");
+
+  } finally {
+
+    setDeleting(false);
+
+  }
+
+};
   return (
     <div className="bg-white rounded-3xl shadow-lg border border-gray-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 p-7">
 
@@ -124,6 +159,13 @@ function ResumeCard({ resume }) {
         </button>
 
       </div>
+      <button
+        onClick={deleteResume}
+        disabled={deleting}
+        className="w-full mt-3 bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 transition disabled:opacity-50"
+      >
+        {deleting ? "Deleting..." : "🗑 Delete Resume"}
+      </button>
 
       {/* Footer */}
 
