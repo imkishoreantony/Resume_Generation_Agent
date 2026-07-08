@@ -1,13 +1,18 @@
+import email
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from rest_framework import generics
 from django.db.models import Q
 from django.contrib.auth.models import User
+from streamlit import user
 from .serializers import RegisterSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import LoginSerializer
 from rest_framework.permissions import IsAuthenticated
 from resumes.models import Resume
-
+from rest_framework.views import APIView
+from .models import UserProfile
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
@@ -36,11 +41,15 @@ class ProfileView(generics.GenericAPIView):
 
         resumes = Resume.objects.filter(user=user)
 
-        return Response({
+        return Response ({
             "username": user.username,
             "email": user.email,
             "date_joined": user.date_joined.strftime("%d %B %Y"),
-
+            "profile_picture": (
+                request.build_absolute_uri(user.userprofile.profile_picture.url)
+                if user.userprofile.profile_picture
+                else None
+            ),
             "total_resumes": resumes.count(),
             "ai_reviews": resumes.exclude(ai_review=None).count(),
             "ai_generated": resumes.exclude(ai_resume=None).count(),
@@ -57,21 +66,90 @@ class ProfileView(generics.GenericAPIView):
         })
 
     def put(self, request):
+            profile, created = UserProfile.objects.get_or_create(
+            user=request.user
+            )
+            image = request.FILES.get("profile_picture")
+
+            username = request.data.get("username")
+            email = request.data.get("email")
+
+            if username:
+                 user.username = username
+
+            if email:
+                user.email = email
+
+            user.save()
+
+            return Response({
+                "message": "Profile updated successfully!",
+                "username": user.username,
+                "email": user.email
+            }, status=status.HTTP_200_OK)
+    
+class ProfilePictureUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        profile, created = UserProfile.objects.get_or_create(
+    user=request.user
+)
+
+        image = request.FILES.get("profile_picture")
+
+        if not image:
+            return Response(
+                {"error": "No image uploaded."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        profile.profile_picture = image
+        profile.save()
+
+        return Response({
+            "message": "Profile picture updated successfully!",
+            "profile_picture": request.build_absolute_uri(
+                profile.profile_picture.url
+            )
+        })
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
         user = request.user
 
-        username = request.data.get("username")
-        email = request.data.get("email")
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+        confirm_password = request.data.get("confirm_password")
 
-        if username:
-            user.username = username
+        # Check old password
+        if not user.check_password(old_password):
+            return Response(
+                {"error": "Current password is incorrect."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        if email:
-            user.email = email
+        # Check new passwords match
+        if new_password != confirm_password:
+            return Response(
+                {"error": "New passwords do not match."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
+        # Validate password strength
+        try:
+            validate_password(new_password, user)
+        except ValidationError as e:
+            return Response(
+                {"error": e.messages},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Save password
+        user.set_password(new_password)
         user.save()
 
         return Response({
-            "message": "Profile updated successfully!",
-            "username": user.username,
-            "email": user.email
-        }, status=status.HTTP_200_OK)
+            "message": "Password changed successfully!"
+        })
