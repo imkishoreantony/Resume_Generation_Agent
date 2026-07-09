@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import LoadingSpinner from "../components/LoadingSpinner";
 import api from "../services/api";
 
 import Navbar from "../components/Navbar";
@@ -114,17 +114,9 @@ function Dashboard() {
 
         {loading ? (
 
-          <div className="flex flex-col items-center justify-center py-24">
+            <LoadingSpinner text="Loading your resumes..." />
 
-            <div className="w-14 h-14 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-
-            <p className="mt-6 text-xl text-gray-600 font-medium">
-              Loading your resumes...
-            </p>
-
-          </div>
-
-        ) : resumes.length === 0 ? (
+          ) : resumes.length === 0 ? (
 
           <div className="bg-white rounded-2xl shadow-lg p-14 text-center">
 
