@@ -9,6 +9,7 @@ import StatCard from "../components/StatCard";
 import ResumeCard from "../components/ResumeCard";
 
 function Dashboard() {
+
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +30,7 @@ function Dashboard() {
     }
   };
 
-  // Delete Resume from UI
+  // Remove resume from dashboard after deletion
   const handleDelete = (id) => {
     setResumes((prevResumes) =>
       prevResumes.filter((resume) => resume.id !== id)
