@@ -58,3 +58,29 @@
 .animate-scaleIn {
   animation: scaleIn .25s ease;
 }
+html {
+  scroll-behavior: smooth;
+}
+@keyframes floating {
+
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+
+}
+
+.floating {
+  animation: floating 4s ease-in-out infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+}

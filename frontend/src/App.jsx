@@ -88,6 +88,7 @@ function App() {
     element={<CoverLetter />}
     />
     <Route path="/job-match/:id" element={<JobMatch />} />
+    
       </Routes>
     </BrowserRouter>
   );
