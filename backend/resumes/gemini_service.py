@@ -1,10 +1,25 @@
 import os
 import json
+from xml.parsers.expat import model
 import google.generativeai as genai
+import os
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+_model = None
 
-model = genai.GenerativeModel("gemini-2.5-flash")
+
+def get_model():
+    global _model
+
+    if _model is None:
+        genai.configure(
+            api_key=os.getenv("GEMINI_API_KEY")
+        )
+
+        _model = genai.GenerativeModel(
+            "gemini-2.5-flash"
+        )
+
+    return _model
 
 
 def clean_json(text):
@@ -28,6 +43,8 @@ def ask_gemini(prompt):
     """
 
     try:
+        model = get_model()
+
         response = model.generate_content(prompt)
 
         text = clean_json(response.text)
@@ -273,6 +290,8 @@ Job Description:
 """
 
     try:
+        model = get_model()
+
         response = model.generate_content(prompt)
 
         text = clean_json(response.text)
