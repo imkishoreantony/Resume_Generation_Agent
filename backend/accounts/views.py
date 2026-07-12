@@ -1,10 +1,8 @@
-import email
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import generics
 from django.db.models import Q
 from django.contrib.auth.models import User
-from streamlit import user
 from .serializers import RegisterSerializer
 from rest_framework.response import Response
 from rest_framework import status
@@ -38,23 +36,24 @@ class ProfileView(generics.GenericAPIView):
 
     def get(self, request):
         user = request.user
+
         profile, created = UserProfile.objects.get_or_create(
-        user=user
-    )
+            user=user
+        )
 
         resumes = Resume.objects.filter(user=user)
 
-        return Response ({
-            
+        return Response({
             "username": user.username,
             "email": user.email,
             "date_joined": user.date_joined.strftime("%d %B %Y"),
-            
-                "profile_picture": (
-                    request.build_absolute_uri(profile.profile_picture.url)
-                    if profile.profile_picture
-                    else None
-                ),
+
+            "profile_picture": (
+                request.build_absolute_uri(profile.profile_picture.url)
+                if profile.profile_picture
+                else None
+            ),
+
             "total_resumes": resumes.count(),
             "ai_reviews": resumes.exclude(ai_review=None).count(),
             "ai_generated": resumes.exclude(ai_resume=None).count(),
@@ -71,27 +70,49 @@ class ProfileView(generics.GenericAPIView):
         })
 
     def put(self, request):
-            profile, created = UserProfile.objects.get_or_create(
-            user=request.user
-            )
-            image = request.FILES.get("profile_picture")
+        user = request.user
 
-            username = request.data.get("username")
-            email = request.data.get("email")
+        profile, created = UserProfile.objects.get_or_create(
+            user=user
+        )
 
-            if username:
-                 user.username = username
+        username = request.data.get("username")
+        email = request.data.get("email")
 
-            if email:
-                user.email = email
+        # Check username
+        if username and username != user.username:
+            if User.objects.filter(username=username).exists():
+                return Response(
+                    {
+                        "error": "Username already exists."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-            user.save()
+            user.username = username
 
-            return Response({
+        # Check email
+        if email and email != user.email:
+            if User.objects.filter(email=email).exists():
+                return Response(
+                    {
+                        "error": "Email already exists."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            user.email = email
+
+        user.save()
+
+        return Response(
+            {
                 "message": "Profile updated successfully!",
                 "username": user.username,
-                "email": user.email
-            }, status=status.HTTP_200_OK)
+                "email": user.email,
+            },
+            status=status.HTTP_200_OK
+        )
     
 class ProfilePictureUploadView(APIView):
     permission_classes = [IsAuthenticated]
