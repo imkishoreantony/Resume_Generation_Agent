@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import RecentActivity from "../components/dashboard/RecentActivity";
 import api from "../services/api";
 import { getDashboard } from "../services/dashboardService";
 import ActivityChart from "../components/dashboard/ActivityChart";
 import Navbar from "../components/Navbar";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ResumeCard from "../components/ResumeCard";
-
+import LatestResumes from "../components/dashboard/LatestResumes";
 import WelcomeBanner from "../components/dashboard/WelcomeBanner";
 import StatsCards from "../components/dashboard/StatsCards";
 
@@ -85,21 +85,45 @@ function Dashboard() {
           />
         )}
 
-        {dashboard && (
-        <div>
-          <StatsCards
-            stats={dashboard.stats}
-          />
+       {dashboard && (
+  <>
+    <StatsCards
+      stats={dashboard.stats}
+    />
 
-          <ActivityChart
-            stats={dashboard.stats}
-          />
-        </div>
-      )}
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mt-8">
+
+      <div className="xl:col-span-2">
+        <ActivityChart
+          stats={dashboard.stats}
+        />
+      </div>
+
+      <div>
+        <RecentActivity
+          activities={dashboard.recent_activity}
+        />
+      </div>
+
+    </div>
+
+    <div className="mt-8">
+      <LatestResumes
+        resumes={dashboard.latest_resumes}
+      />
+    </div>
+  </>
+)}
 
         {/* Quick Actions */}
 
-        <div className="flex flex-wrap gap-4 my-8">
+        <div className="bg-white rounded-2xl shadow-lg p-6 my-8">
+
+          <h2 className="text-2xl font-bold mb-5">
+            ⚡ Quick Actions
+          </h2>
+
+          <div className="flex flex-wrap gap-4"></div>
 
           <button
             onClick={() => navigate("/create")}
