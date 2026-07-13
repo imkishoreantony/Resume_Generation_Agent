@@ -1,6 +1,8 @@
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import generics
+from django.db.models import Count
+from resumes.models import Resume
 from django.db.models import Q
 from django.contrib.auth.models import User
 from .serializers import RegisterSerializer
@@ -194,3 +196,67 @@ class DeleteAccountView(APIView):
             },
             status=status.HTTP_200_OK
         )
+class DashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        user = request.user
+
+        resumes = Resume.objects.filter(
+            user=user
+        ).order_by("-created_at")
+
+        recent = resumes[:5]
+
+        recent_activity = [
+            {
+                "title": resume.title,
+                "created_at": resume.created_at.strftime("%d %b %Y"),
+            }
+            for resume in recent
+        ]
+
+        latest_resumes = [
+            {
+                "id": resume.id,
+                "title": resume.title,
+                "template": resume.template,
+                "created_at": resume.created_at.strftime("%d %b %Y"),
+                "ai_review": resume.ai_review is not None,
+                "ai_generated": resume.ai_resume is not None,
+                "ai_assisted": resume.ai_assist is not None,
+                "cover_letter": resume.ai_cover_letter is not None,
+            }
+            for resume in recent
+        ]
+
+        return Response({
+
+            "username": user.username,
+
+            "stats": {
+                "total_resumes": resumes.count(),
+
+                "ai_reviews": resumes.filter(
+                    ai_review__isnull=False
+                ).count(),
+
+                "ai_generated": resumes.filter(
+                    ai_resume__isnull=False
+                ).count(),
+
+                "ai_assisted": resumes.filter(
+                    ai_assist__isnull=False
+                ).count(),
+
+                "cover_letters": resumes.filter(
+                    ai_cover_letter__isnull=False
+                ).count(),
+            },
+
+            "recent_activity": recent_activity,
+
+            "latest_resumes": latest_resumes,
+
+        })

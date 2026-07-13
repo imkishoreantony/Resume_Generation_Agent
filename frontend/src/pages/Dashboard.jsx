@@ -1,102 +1,123 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import LoadingSpinner from "../components/LoadingSpinner";
-import api from "../services/api";
 
+import api from "../services/api";
+import { getDashboard } from "../services/dashboardService";
+import ActivityChart from "../components/dashboard/ActivityChart";
 import Navbar from "../components/Navbar";
-import DashboardHeader from "../components/DashboardHeader";
-import StatCard from "../components/StatCard";
+import LoadingSpinner from "../components/LoadingSpinner";
 import ResumeCard from "../components/ResumeCard";
+
+import WelcomeBanner from "../components/dashboard/WelcomeBanner";
+import StatsCards from "../components/dashboard/StatsCards";
 
 function Dashboard() {
 
+  const navigate = useNavigate();
+
+  const [dashboard, setDashboard] = useState(null);
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
-
   useEffect(() => {
-    fetchResumes();
+    loadDashboard();
   }, []);
 
-  const fetchResumes = async () => {
+  const loadDashboard = async () => {
+
     try {
-      const response = await api.get("resumes/");
-      setResumes(response.data);
+
+      const [dashboardData, resumeResponse] = await Promise.all([
+        getDashboard(),
+        api.get("resumes/")
+      ]);
+
+      setDashboard(dashboardData);
+      setResumes(resumeResponse.data);
+
     } catch (error) {
-      console.error("Failed to fetch resumes:", error);
+
+      console.error("Dashboard Error:", error);
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
-  // Remove resume from dashboard after deletion
   const handleDelete = (id) => {
-    setResumes((prevResumes) =>
-      prevResumes.filter((resume) => resume.id !== id)
+
+    setResumes((prev) =>
+      prev.filter((resume) => resume.id !== id)
     );
+
+    if (dashboard) {
+
+      setDashboard((prev) => ({
+        ...prev,
+        stats: {
+          ...prev.stats,
+          total_resumes: prev.stats.total_resumes - 1,
+        },
+      }));
+
+    }
+
   };
+
+  if (loading) {
+    return <LoadingSpinner text="Loading Dashboard..." />;
+  }
 
   return (
+
     <div className="min-h-screen bg-gray-100">
 
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
 
-        <DashboardHeader />
+        {dashboard && (
+          <WelcomeBanner
+            username={dashboard.username}
+          />
+        )}
 
-        {/* Statistics */}
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 mb-10">
-
-          <StatCard
-            icon="📄"
-            title="Total Resumes"
-            value={resumes.length}
-            subtitle="Created"
-            color="text-blue-600"
+        {dashboard && (
+        <div>
+          <StatsCards
+            stats={dashboard.stats}
           />
 
-          <StatCard
-            icon="🤖"
-            title="AI Reviews"
-            value={resumes.length}
-            subtitle="Available"
-            color="text-green-600"
+          <ActivityChart
+            stats={dashboard.stats}
           />
-
-          <StatCard
-            icon="📥"
-            title="PDF Export"
-            value="Ready"
-            subtitle="Download Anytime"
-            color="text-purple-600"
-          />
-
         </div>
+      )}
 
         {/* Quick Actions */}
 
-        <div className="flex flex-wrap gap-4 mb-10">
+        <div className="flex flex-wrap gap-4 my-8">
 
           <button
             onClick={() => navigate("/create")}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow transition"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl shadow transition"
           >
             ➕ Create Resume
           </button>
 
           <button
             onClick={() => navigate("/upload")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow transition"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow transition"
           >
             📤 Upload Resume
           </button>
 
         </div>
 
-        {/* Resume Header */}
+        {/* Resume Section */}
 
         <div className="mb-6">
 
@@ -104,37 +125,31 @@ function Dashboard() {
             My Resumes
           </h2>
 
-          <p className="text-gray-500 mt-1">
+          <p className="text-gray-500 mt-2">
             Manage, review, improve and download your AI-powered resumes.
           </p>
 
         </div>
 
-        {/* Loading */}
+        {resumes.length === 0 ? (
 
-        {loading ? (
-
-            <LoadingSpinner text="Loading your resumes..." />
-
-          ) : resumes.length === 0 ? (
-
-          <div className="bg-white rounded-2xl shadow-lg p-14 text-center">
+          <div className="bg-white rounded-3xl shadow-lg p-14 text-center">
 
             <div className="text-7xl mb-6">
               📄
             </div>
 
-            <h2 className="text-3xl font-bold text-gray-800">
+            <h2 className="text-3xl font-bold">
               No Resumes Yet
             </h2>
 
             <p className="text-gray-500 mt-4 mb-8">
-              Create your first AI Resume or upload an existing resume.
+              Create your first resume or upload an existing one.
             </p>
 
             <button
               onClick={() => navigate("/create")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl transition"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl"
             >
               Create Resume
             </button>
@@ -143,31 +158,15 @@ function Dashboard() {
 
         ) : (
 
-          <div
-            className={
-              resumes.length === 1
-                ? "flex justify-center"
-                : "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-            }
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
             {resumes.map((resume) => (
 
-              <div
+              <ResumeCard
                 key={resume.id}
-                className={
-                  resumes.length === 1
-                    ? "w-full max-w-2xl"
-                    : ""
-                }
-              >
-
-                <ResumeCard
-                  resume={resume}
-                  onDelete={handleDelete}
-                />
-
-              </div>
+                resume={resume}
+                onDelete={handleDelete}
+              />
 
             ))}
 
@@ -178,7 +177,9 @@ function Dashboard() {
       </div>
 
     </div>
+
   );
+
 }
 
 export default Dashboard;
