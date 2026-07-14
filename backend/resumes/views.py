@@ -546,3 +546,42 @@ class FavoriteResumeView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+class ResumeTemplateView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+
+        resume = get_object_or_404(
+            Resume,
+            pk=pk,
+            user=request.user
+        )
+
+        template = request.data.get("template")
+
+        allowed_templates = [
+            "Classic",
+            "Modern",
+            "Minimal",
+            "Professional"
+        ]
+
+        if template not in allowed_templates:
+
+            return Response(
+                {
+                    "error": "Invalid template."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        resume.template = template
+        resume.save()
+
+        return Response(
+            {
+                "message": "Template updated successfully.",
+                "template": resume.template,
+            }
+        )

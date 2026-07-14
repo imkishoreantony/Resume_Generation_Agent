@@ -1,4 +1,7 @@
-function TemplateSwitcher({ template, setTemplate }) {
+function TemplateSwitcher({
+  template,
+  onSelect,
+}) {
 
   const templates = [
     "Classic",
@@ -9,14 +12,14 @@ function TemplateSwitcher({ template, setTemplate }) {
 
   return (
 
-    <div className="flex flex-wrap gap-3 mb-6">
+    <div className="flex flex-wrap gap-3">
 
       {templates.map((item) => (
 
         <button
           key={item}
-          onClick={() => setTemplate(item)}
-          className={`px-5 py-2 rounded-full transition font-medium
+          onClick={() => onSelect(item)}
+          className={`px-5 py-2 rounded-full transition
             ${
               template === item
                 ? "bg-blue-600 text-white"
