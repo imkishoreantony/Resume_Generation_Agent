@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from .cover_letter_pdf import generate_cover_letter_pdf
 from django.http import FileResponse
 from django.conf import settings
-
+from rest_framework import status
+from django.shortcuts import get_object_or_404
 import os
 
 from .models import Resume
@@ -524,3 +525,24 @@ class ResumeJobMatchView(APIView):
                 },
                 status=404
             )
+class FavoriteResumeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+
+        resume = get_object_or_404(
+            Resume,
+            pk=pk,
+            user=request.user
+        )
+
+        resume.is_favorite = not resume.is_favorite
+        resume.save()
+
+        return Response(
+            {
+                "message": "Favorite updated successfully.",
+                "is_favorite": resume.is_favorite,
+            },
+            status=status.HTTP_200_OK,
+        )

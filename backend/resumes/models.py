@@ -45,6 +45,9 @@ class Resume(models.Model):
         max_length=100,
         default="Classic"
     )
+    is_favorite = models.BooleanField(
+    default=False
+    )
 
     resume_file = models.FileField(
         upload_to="resumes/",
@@ -75,6 +78,7 @@ class Resume(models.Model):
     blank=True,
     null=True
     )
+    
     created_at = models.DateTimeField(
         auto_now_add=True
     )

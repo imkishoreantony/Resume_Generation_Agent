@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import ResumeCreateView, ResumeDetailView , ResumeUploadView , ResumeTextView , ResumeImproveView , ResumeGenerateView , ResumeDownloadView , ResumeAssistView , ResumeCoverLetterView , ResumeCoverLetterPDFView , ResumeJobMatchView
+from .views import ResumeCreateView, ResumeDetailView , ResumeUploadView , ResumeTextView , ResumeImproveView , ResumeGenerateView , ResumeDownloadView , ResumeAssistView , ResumeCoverLetterView , ResumeCoverLetterPDFView , ResumeJobMatchView  , FavoriteResumeView
 
 urlpatterns = [
     path("", ResumeCreateView.as_view(), name="resume-list-create"),
@@ -24,5 +24,11 @@ urlpatterns = [
     "<int:pk>/job-match/",
     ResumeJobMatchView.as_view(),
     name="job-match",
-),
+    ),
+    path(
+    "<int:pk>/favorite/",
+    FavoriteResumeView.as_view(),
+    name="favorite-resume",
+    ),
+
 ]

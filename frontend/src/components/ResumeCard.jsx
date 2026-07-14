@@ -3,14 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../services/api";
 import DeleteResumeModal from "./DeleteResumeModal";
-
+import { FaStar, FaRegStar } from "react-icons/fa";
+import ResumePreviewModal from "./ResumePreviewModal";
 function ResumeCard({ resume, onDelete }) {
 
   const navigate = useNavigate();
-
+  const [showPreview,setShowPreview]=useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
+  const [favorite, setFavorite] = useState(resume.is_favorite);
+const [favoriteLoading, setFavoriteLoading] = useState(false);
   const downloadPDF = async () => {
     try {
       const response = await api.get(
@@ -67,6 +69,37 @@ function ResumeCard({ resume, onDelete }) {
 
     }
   };
+  const toggleFavorite = async () => {
+
+  try {
+
+    setFavoriteLoading(true);
+
+    const response = await api.put(
+      `resumes/${resume.id}/favorite/`
+    );
+
+    setFavorite(response.data.is_favorite);
+
+    toast.success(
+      response.data.is_favorite
+        ? "Added to Favorites ⭐"
+        : "Removed from Favorites"
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error("Failed to update favorite.");
+
+  } finally {
+
+    setFavoriteLoading(false);
+
+  }
+
+};
 
   return (
     <>
@@ -76,17 +109,34 @@ function ResumeCard({ resume, onDelete }) {
 
         <div className="flex justify-between items-start">
 
-          <div>
+  <div className="flex-1">
 
-            <h2 className="text-2xl font-bold text-blue-600">
-              {resume.title}
-            </h2>
+    <h2 className="text-2xl font-bold text-blue-600">
+      {resume.title}
+    </h2>
 
             <p className="text-gray-600 mt-2 leading-relaxed">
               {resume.summary || "No summary available."}
             </p>
 
           </div>
+
+          <button
+            onClick={toggleFavorite}
+            disabled={favoriteLoading}
+            className="ml-4 text-3xl transition duration-300 hover:scale-125 disabled:opacity-50"
+            title={
+              favorite
+                ? "Remove from Favorites"
+                : "Add to Favorites"
+            }
+          >
+            {favorite ? (
+              <FaStar className="text-yellow-500" />
+            ) : (
+              <FaRegStar className="text-gray-400 hover:text-yellow-500" />
+            )}
+          </button>
 
         </div>
 
@@ -101,6 +151,15 @@ function ResumeCard({ resume, onDelete }) {
           <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-semibold">
             ✅ Ready
           </span>
+                      {favoriteLoading ? (
+              <span className="text-gray-400 animate-pulse">
+                ...
+              </span>
+            ) : favorite ? (
+              <FaStar className="text-yellow-500" />
+            ) : (
+              <FaRegStar className="text-gray-400 hover:text-yellow-500" />
+            )}
 
         </div>
 
@@ -111,6 +170,17 @@ function ResumeCard({ resume, onDelete }) {
         </h3>
 
         <div className="grid grid-cols-2 gap-4">
+          <button
+
+              onClick={()=>setShowPreview(true)}
+
+              className="bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl py-3 font-medium transition"
+
+              >
+
+              👁 Preview
+
+          </button>
 
           <button
             onClick={() => navigate(`/review/${resume.id}`)}
@@ -188,6 +258,15 @@ function ResumeCard({ resume, onDelete }) {
         onConfirm={deleteResume}
         loading={deleting}
       />
+              <ResumePreviewModal
+
+        isOpen={showPreview}
+
+        onClose={()=>setShowPreview(false)}
+
+        resume={resume}
+
+        />
     </>
   );
 }

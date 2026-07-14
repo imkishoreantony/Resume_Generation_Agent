@@ -253,6 +253,9 @@ class DashboardView(APIView):
                 "cover_letters": resumes.filter(
                     ai_cover_letter__isnull=False
                 ).count(),
+                "favorite_count": resumes.filter(
+                       is_favorite=True 
+                ).count(),
             },
 
             "recent_activity": recent_activity,
