@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useReactToPrint } from "react-to-print";
 import { toast } from "react-toastify";
-import TemplateGallery from "./resume/TemplateGallery";
+
 import api from "../services/api";
 
+
 import ResumeTemplate from "./resume/ResumeTemplate";
-import TemplateSwitcher from "./resume/TemplateSwitcher";
+import TemplateGallery from "./resume/TemplateGallery";
 
 function ResumePreviewModal({
   isOpen,
@@ -14,13 +16,20 @@ function ResumePreviewModal({
 }) {
 
   const [template, setTemplate] = useState("Classic");
+  const resumeRef = useRef(null);
 
-  // Load template whenever a different resume is opened
+  // Load saved template whenever a different resume is opened
   useEffect(() => {
+
     if (resume) {
       setTemplate(resume.template || "Classic");
     }
+
   }, [resume]);
+  const handlePrint = useReactToPrint({
+  contentRef: resumeRef,
+  documentTitle: resume.title || "Resume",
+});
 
   const updateTemplate = async (selectedTemplate) => {
 
@@ -35,10 +44,9 @@ function ResumePreviewModal({
 
       setTemplate(selectedTemplate);
 
-      // Keep local object updated
       if (onTemplateChange) {
-  onTemplateChange(selectedTemplate);
-};
+        onTemplateChange(selectedTemplate);
+      }
 
       toast.success(
         `${selectedTemplate} template selected 🎉`
@@ -88,8 +96,10 @@ function ResumePreviewModal({
 
             <div className="flex gap-3">
 
+              
+
               <button
-                onClick={() => window.print()}
+                onClick={handlePrint}
                 className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl transition"
               >
                 🖨 Print
@@ -109,11 +119,10 @@ function ResumePreviewModal({
           <div className="mt-6">
 
             <TemplateGallery
-  template={template}
-  onSelect={updateTemplate}
-  resume={resume}
-  
-/>
+              template={template}
+              onSelect={updateTemplate}
+              resume={resume}
+            />
 
           </div>
 
@@ -121,14 +130,15 @@ function ResumePreviewModal({
 
         {/* Resume */}
 
-        <div className="p-8">
-
-          <ResumeTemplate
-            resume={resume}
-            template={template}
-          />
-
-        </div>
+       <div
+  ref={resumeRef}
+  className="print-area p-8 bg-white"
+>
+  <ResumeTemplate
+    resume={resume}
+    template={template}
+  />
+</div>
 
       </div>
 
