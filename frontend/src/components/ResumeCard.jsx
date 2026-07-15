@@ -258,15 +258,14 @@ const [favoriteLoading, setFavoriteLoading] = useState(false);
         onConfirm={deleteResume}
         loading={deleting}
       />
-              <ResumePreviewModal
-
-        isOpen={showPreview}
-
-        onClose={()=>setShowPreview(false)}
-
-        resume={resume}
-
-        />
+        <ResumePreviewModal
+  isOpen={showPreview}
+  onClose={() => setShowPreview(false)}
+  resume={resume}
+  onTemplateChange={(newTemplate) => {
+    resume.template = newTemplate;
+  }}
+/>
     </>
   );
 }

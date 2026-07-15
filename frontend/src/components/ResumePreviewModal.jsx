@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-
+import TemplateGallery from "./resume/TemplateGallery";
 import api from "../services/api";
 
 import ResumeTemplate from "./resume/ResumeTemplate";
@@ -10,6 +10,7 @@ function ResumePreviewModal({
   isOpen,
   onClose,
   resume,
+  onTemplateChange,
 }) {
 
   const [template, setTemplate] = useState("Classic");
@@ -35,7 +36,9 @@ function ResumePreviewModal({
       setTemplate(selectedTemplate);
 
       // Keep local object updated
-      resume.template = selectedTemplate;
+      if (onTemplateChange) {
+  onTemplateChange(selectedTemplate);
+};
 
       toast.success(
         `${selectedTemplate} template selected 🎉`
@@ -105,10 +108,12 @@ function ResumePreviewModal({
 
           <div className="mt-6">
 
-            <TemplateSwitcher
-              template={template}
-              onSelect={updateTemplate}
-            />
+            <TemplateGallery
+  template={template}
+  onSelect={updateTemplate}
+  resume={resume}
+  
+/>
 
           </div>
 
